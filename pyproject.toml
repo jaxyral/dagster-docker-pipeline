@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "dagster-docker-pipeline"
+version = "0.1.0"
+description = "A Dagster pipeline setup with Docker Compose and Tilt"
+authors = ["Your Name <youremail@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+dagster = "^0.13.0"
+dagit = "^0.13.0"
+dask = "^2021.4.0"
+dlt = "^0.3.0"
+neo4j = "^4.3.0"
+pydantic = "^1.8.2"
+
+[tool.poetry.dev-dependencies]
+black = "^21.7b0"
+flake8 = "^3.9.2"
+mypy = "^0.910"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+
+[tool.flake8]
+max-line-length = 88
+
+[tool.mypy]
+ignore_missing_imports = true
