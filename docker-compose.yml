@@ -53,3 +53,10 @@ services:
 networks:
   dagster-network:
     driver: bridge
+  neo4j:
+    image: neo4j:4.2
+    ports:
+      - "7687:7687"
+      - "7474:7474"
+    environment:
+      NEO4J_AUTH: "neo4j/test"
