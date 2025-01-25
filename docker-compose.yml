@@ -1,19 +1,6 @@
+version: '3.7'
+
 services:
-  dagster:
-    image: dagster-docker-pipeline:latest
-    command: dagit -h 0.0.0.0 -p 3000
-    ports:
-      - "3000:3000"
-    depends_on:
-      - postgres
-
-  dagster-daemon:
-    image: dagster-docker-pipeline:latest
-    command: dagster-daemon run
-    depends_on:
-      - dagster
-      - postgres
-
   postgres:
     image: postgres:13
     environment:
@@ -22,3 +9,47 @@ services:
       POSTGRES_DB: dagster
     ports:
       - "5432:5432"
+    networks:
+      - dagster-network
+
+  code-location:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: dagster api grpc -h 0.0.0.0 -p 4000 -f /dagster/app/dagster_pipeline.py -n my_pipeline
+    volumes:
+      - ./dagster:/dagster
+    networks:
+      - dagster-network
+
+  dagster:
+    image: dagster-docker-pipeline:latest
+    command: dagit -h 0.0.0.0 -p 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - code-location
+    environment:
+      DAGSTER_HOME: /opt/dagster/dagster_home
+      DAGSTER_GRPC_SERVER_HOST: code-location
+      DAGSTER_GRPC_SERVER_PORT: 4000
+    networks:
+      - dagster-network
+
+  dagster-daemon:
+    image: dagster-docker-pipeline:latest
+    command: dagster-daemon run
+    depends_on:
+      - dagster
+      - postgres
+    environment:
+      DAGSTER_HOME: /opt/dagster/dagster_home
+      DAGSTER_GRPC_SERVER_HOST: code-location
+      DAGSTER_GRPC_SERVER_PORT: 4000
+    networks:
+      - dagster-network
+
+networks:
+  dagster-network:
+    driver: bridge
